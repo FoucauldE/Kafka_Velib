@@ -1,19 +1,21 @@
 from kafka import KafkaProducer
 import requests
 import time
-import json
-from bson import json_util
+from json import dumps
 from config.config import API_URL
 from config.private_config import API_KEY
 
-producer = KafkaProducer(bootstrap_servers='localhost:9092')
+KAFKA_BROKER = 'localhost:9092'
+OUTPUT_TOPIC = 'velib-stations'
+
 params = {'apiKey': API_KEY}
+producer = KafkaProducer(bootstrap_servers=KAFKA_BROKER,
+                         value_serializer=lambda x: dumps(x).encode('utf-8'))
 
 def query_api():
     response = requests.get(API_URL, params=params)
     data = response.json()
-    producer.send('velib-stations', json.dumps(data, default=json_util.default).encode('utf-8'))
-    print('Data sent')
+    producer.send(OUTPUT_TOPIC, data)
 
 while True:
     query_api()
