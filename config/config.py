@@ -1,0 +1,1 @@
+API_URL = 'https://api.jcdecaux.com/vls/v1/stations'

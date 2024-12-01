@@ -1,0 +1,4 @@
+# Private config
+config/private*
+
+config/__pycache__
