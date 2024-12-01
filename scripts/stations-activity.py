@@ -1,30 +1,64 @@
 from kafka import KafkaProducer, KafkaConsumer
-import requests
 import time
-import json
-from json import loads
-from bson import json_util
+from json import loads, dumps
 from config.private_config import API_KEY
+
+KAFKA_BROKER = 'localhost:9092'
+INPUT_TOPIC = 'velib-stations'
+OUTPUT_TOPIC = 'stations-status'
 
 params = {'apiKey': API_KEY}
 
-consumer = KafkaConsumer('velib-stations',
-                         bootstrap_servers='localhost:9092',
+consumer = KafkaConsumer(INPUT_TOPIC,
+                         bootstrap_servers=KAFKA_BROKER,
                          auto_offset_reset='latest',
-                         group_id='test-consumer-group',
+                         group_id='stations-activity-group',
                          value_deserializer=lambda x: loads(x.decode('utf-8')))
 
-def process_data(data):
-     for station in data:
-          print(station.keys())
-        # print(f"Station ID: {station['station_id']}")
-        # print(f"Available bikes: {station['available_bikes']}")
-        # print(f"Free slots: {station['available_bike_stands']}")
+producer = KafkaProducer(bootstrap_servers=KAFKA_BROKER,
+                         value_serializer=lambda x: dumps(x).encode('utf-8'))
+
+
+last_stations_states = {}
+
+def process_station(station):
+
+     station_nb = station['number']
+     contract_name = station['contract_name']
+     available_bikes = station['available_bikes']
+     free_spaces = station['available_bike_stands']
+     status = station['status']
+
+     station_unique_id = f'{contract_name}_{station_nb}' # station_nb is only unique within a contract
+
+     if station_unique_id in last_stations_states:
+          # compare new state with previously stored
+          previous_state = last_stations_states[station_unique_id]
+
+          if (previous_state['bikes'] != available_bikes or
+              previous_state['slots'] != free_spaces or
+              previous_state['status'] != status):
+               
+               producer.send(OUTPUT_TOPIC, station)
+               last_stations_states[station_unique_id] = {
+                    'bikes': available_bikes,
+                    'slots': free_spaces,
+                    'status': status
+               }
+     
+     else:
+          # starts monitoring new station
+          producer.send(OUTPUT_TOPIC, station)
+          last_stations_states[station_unique_id] = {
+                    'bikes': available_bikes,
+                    'slots': free_spaces,
+                    'status': status
+               }
+
 
 while True:
      for message in consumer:
           data = message.value
-          # print(data)
-          process_data(data)
+          for station in data:
+               process_station(station)
      time.sleep(2)
-
