@@ -2,10 +2,10 @@ from kafka import KafkaProducer
 import requests
 import time
 from json import dumps
-from config.config import API_URL
+from config.config import API_URL, KAFKA_BROKER
 from config.private_config import API_KEY
+from datetime import datetime
 
-KAFKA_BROKER = 'localhost:9092'
 OUTPUT_TOPIC = 'velib-stations'
 
 params = {'apiKey': API_KEY}
@@ -17,6 +17,14 @@ def query_api():
     data = response.json()
     producer.send(OUTPUT_TOPIC, data)
 
-while True:
-    query_api()
-    time.sleep(2)
+try:
+    print('Collecting API data...')
+    while True:
+        query_api()
+        time.sleep(2)
+
+except KeyboardInterrupt:
+    print("Interrumpting...")
+finally:
+    producer.close()
+    print('Producer closed.')

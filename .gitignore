@@ -1,4 +1,8 @@
 # Private config
 config/private*
 
-config/__pycache__
+# Python bytecode files
+**/__pycache__
+
+# Archived files
+archives/*

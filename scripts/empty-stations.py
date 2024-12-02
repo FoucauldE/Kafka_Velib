@@ -2,9 +2,9 @@ from kafka import KafkaProducer, KafkaConsumer
 import time
 import json
 from json import loads, dumps
+from config.config import KAFKA_BROKER
 from config.private_config import API_KEY
 
-KAFKA_BROKER = 'localhost:9092'
 INPUT_TOPIC = 'stations-status'
 OUTPUT_TOPIC = 'empty-stations'
 
@@ -59,16 +59,20 @@ def process_station(station):
         producer.send(OUTPUT_TOPIC, info_to_send)
         last_emptiness_state[station_unique_id] = is_empty
 
+try:
+    while True:
+        for message in consumer:
+            station_status = message.value
+            if isinstance(station_status, str):
+                try:
+                    station_status = json.loads(station_status)
+                except json.JSONDecodeError:
+                    continue
+            process_station(station_status)
+        time.sleep(2)
 
-while True:
-     for message in consumer:
-          station_status = message.value
-          # print('station status:', station_status, type(station_status))
-          if isinstance(station_status, str):
-            try:
-                station_status = json.loads(station_status)
-            except json.JSONDecodeError:
-                continue
-          process_station(station_status)
-          # for station in stations_status:
-     time.sleep(2)
+except KeyboardInterrupt:
+    print("Interrumpting...")
+finally:
+    producer.close()
+    print('Producer closed.')
