@@ -2,7 +2,7 @@ from kafka import KafkaConsumer
 import time
 from json import loads
 from helper.tools import convert_timestamp
-from config.private_config import API_KEY
+from config.private_config import API_KEY, WAIT_TIME
 
 KAFKA_BROKER = 'localhost:9092'
 TOPICS_PATTERN = '.*stations.*'
@@ -28,7 +28,7 @@ try:
 
             print(f"Topic: {topic}, Partition: {partition}, Offset: {offset}, Timestamp: {timestamp}")
 
-        time.sleep(1)
+        time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt:
     print("Monitoring interrupted.")

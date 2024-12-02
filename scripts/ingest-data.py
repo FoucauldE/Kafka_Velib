@@ -2,7 +2,7 @@ from kafka import KafkaProducer
 import requests
 import time
 from json import dumps
-from config.config import API_URL, KAFKA_BROKER
+from config.config import API_URL, KAFKA_BROKER, WAIT_TIME
 from config.private_config import API_KEY
 from datetime import datetime
 
@@ -21,7 +21,7 @@ try:
     print('Collecting API data...')
     while True:
         query_api()
-        time.sleep(2)
+        time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt:
     print("Interrumpting...")
