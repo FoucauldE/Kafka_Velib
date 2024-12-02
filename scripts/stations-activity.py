@@ -1,9 +1,9 @@
 from kafka import KafkaProducer, KafkaConsumer
 import time
 from json import loads, dumps
+from config.config import KAFKA_BROKER
 from config.private_config import API_KEY
 
-KAFKA_BROKER = 'localhost:9092'
 INPUT_TOPIC = 'velib-stations'
 OUTPUT_TOPIC = 'stations-status'
 
@@ -55,10 +55,16 @@ def process_station(station):
                     'status': status
                }
 
+try:
+     while True:
+          for message in consumer:
+               data = message.value
+               for station in data:
+                    process_station(station)
+          time.sleep(2)
 
-while True:
-     for message in consumer:
-          data = message.value
-          for station in data:
-               process_station(station)
-     time.sleep(2)
+except KeyboardInterrupt:
+    print("Interrumpting...")
+finally:
+    producer.close()
+    print('Producer closed.')
