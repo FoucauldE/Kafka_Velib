@@ -4,12 +4,11 @@ import os
 import json
 from json import loads
 from helper.tools import convert_timestamp
-from config.config import WAIT_TIME
+from config.config import WAIT_TIME, ARCHIVE_DIR
 from config.private_config import API_KEY
 
 KAFKA_BROKER = 'localhost:9092'
 INPUT_TOPIC = 'velib-stations'
-ARCHIVE_DIR = './archives'
 
 os.makedirs(ARCHIVE_DIR, exist_ok=True)
 params = {'apiKey': API_KEY}
