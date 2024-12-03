@@ -1,8 +1,8 @@
 from kafka import KafkaProducer, KafkaConsumer
 import time
 from json import loads, dumps
-from config.config import KAFKA_BROKER
-from config.private_config import API_KEY, WAIT_TIME
+from config.config import KAFKA_BROKER, WAIT_TIME
+from config.private_config import API_KEY
 
 INPUT_TOPIC = 'stations-status'
 OUTPUT_TOPIC = 'empty-stations'

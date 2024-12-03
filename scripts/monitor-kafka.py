@@ -2,7 +2,8 @@ from kafka import KafkaConsumer
 import time
 from json import loads
 from helper.tools import convert_timestamp
-from config.private_config import API_KEY, WAIT_TIME
+from config.config import WAIT_TIME
+from config.private_config import API_KEY
 
 KAFKA_BROKER = 'localhost:9092'
 TOPICS_PATTERN = '.*stations.*'
