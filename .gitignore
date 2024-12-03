@@ -6,3 +6,6 @@ config/private*
 
 # Archived files
 archives/*
+
+# env
+kafka-env/*
