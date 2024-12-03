@@ -1,7 +1,7 @@
 from kafka import KafkaConsumer
 import time
 from json import loads
-from config.config import KAFKA_BROKER
+from config.config import KAFKA_BROKER, WAIT_TIME
 from config.private_config import API_KEY
 
 INPUT_TOPIC = 'empty-stations'
@@ -14,8 +14,6 @@ consumer = KafkaConsumer(INPUT_TOPIC,
                          group_id='empty-stations-group',
                          value_deserializer=lambda x: loads(x.decode('utf-8')))
 
-
-last_emptiness_state = {}
 
 def process_station(station):
 
@@ -31,9 +29,9 @@ try:
      while True:
           for message in consumer:
                station_emptiness_status = message.value
-               process_station(station_emptiness_status)
                # for station in stations_emptiness_status:
-          time.sleep(2)
+               process_station(station_emptiness_status)
+          time.sleep(WAIT_TIME)
           
 except KeyboardInterrupt:
     print("Interrumpting...")

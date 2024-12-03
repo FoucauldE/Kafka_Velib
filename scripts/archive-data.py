@@ -4,6 +4,7 @@ import os
 import json
 from json import loads
 from helper.tools import convert_timestamp
+from config.config import WAIT_TIME
 from config.private_config import API_KEY
 
 KAFKA_BROKER = 'localhost:9092'
@@ -17,7 +18,7 @@ params = {'apiKey': API_KEY}
 def get_file_name(last_update_timestamp):
     date = convert_timestamp(last_update_timestamp)
     return f"velib-stations-{date}.txt"
- 
+
 current_date = None
 current_file = None
 file = None
@@ -30,6 +31,7 @@ consumer = KafkaConsumer(INPUT_TOPIC,
                          value_deserializer=lambda x: loads(x.decode('utf-8')))
 
 try:
+    print("Archiving the input data")
     while True:
         for message in consumer:
             data = message.value
@@ -55,7 +57,7 @@ try:
             file.write(json.dumps(data) + '\n')
             file.flush() # write data as we go along
         
-        time.sleep(2)
+        time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt:
     print("Process interrupted")
